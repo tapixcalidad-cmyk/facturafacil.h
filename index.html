@@ -299,8 +299,11 @@ input,select,textarea{font-family:inherit;font-size:.95rem;}
 .invoice-paper-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;padding-top:.6rem;}
 .invoice-biz{display:flex;align-items:center;gap:1rem;}
 .paper-logo{
-  width:76px;height:76px;object-fit:contain;
+  object-fit:contain;display:block;
 }
+.paper-logo-inline-wrap:empty{display:none;}
+.paper-logo-center-wrap{display:flex;justify-content:center;margin-bottom:1.2rem;}
+.paper-logo-center-wrap.hidden{display:none;}
 .paper-biz-name{font-family:'Fraunces',serif;font-weight:700;font-size:1.3rem;}
 .paper-biz-sub{font-size:.8rem;color:var(--muted);}
 .invoice-meta{text-align:right;margin-top:1.9rem;}
@@ -591,6 +594,22 @@ if(FIREBASE_CONFIGURED){
           </div>
           <input type="file" id="cfg-logo-input" accept="image/*">
           <button class="btn btn-ghost btn-sm" id="btn-remove-logo">Quitar logo</button>
+
+          <label>Tamaño del logo en la factura
+            <select id="cfg-logo-size">
+              <option value="pequeno">Pequeño</option>
+              <option value="mediano">Mediano</option>
+              <option value="grande">Grande</option>
+              <option value="extra">Extra grande</option>
+            </select>
+          </label>
+          <label>Posición del logo en la factura
+            <select id="cfg-logo-position">
+              <option value="izquierda">Izquierda, junto al nombre del negocio</option>
+              <option value="derecha">Derecha, junto al número de factura</option>
+              <option value="centro">Centrado, arriba de todo</option>
+            </select>
+          </label>
         </div>
 
         <div class="config-card">
@@ -715,9 +734,10 @@ if(FIREBASE_CONFIGURED){
     </div>
 
     <div id="invoice-paper" class="invoice-paper">
+      <div id="paper-logo-center-wrap" class="paper-logo-center-wrap hidden"></div>
       <div class="invoice-paper-head">
         <div class="invoice-biz">
-          <img id="paper-logo" class="paper-logo hidden" alt="Logo">
+          <div id="paper-logo-left-wrap" class="paper-logo-inline-wrap"><img id="paper-logo" class="paper-logo hidden" alt="Logo"></div>
           <div>
             <div id="paper-biz-name" class="paper-biz-name">Mi Negocio</div>
             <div id="paper-biz-phone" class="paper-biz-sub"></div>
@@ -725,6 +745,7 @@ if(FIREBASE_CONFIGURED){
           </div>
         </div>
         <div class="invoice-meta">
+          <div id="paper-logo-right-wrap" class="paper-logo-inline-wrap"></div>
           <div class="invoice-meta-num" id="paper-invoice-number">FAC-0001</div>
           <div id="paper-invoice-date" class="paper-biz-sub"></div>
           <div id="paper-invoice-delivery" class="paper-biz-sub"></div>
@@ -782,6 +803,8 @@ function defaultDB(){
       businessAddress:'',
       businessRnc:'',
       logo:'',
+      logoSize:'mediano',
+      logoPosition:'izquierda',
       accent:'#2F6F4E',
       nextNumber:1,
       prefix:'FAC-'
@@ -1026,6 +1049,39 @@ function money(n){
   return 'RD$ ' + (Number(n)||0).toLocaleString('es-DO', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
+const LOGO_SIZES = { pequeno:48, mediano:76, grande:110, extra:150 };
+
+function placeInvoiceLogo(settings){
+  const logoImg = document.getElementById('paper-logo');
+  const leftWrap = document.getElementById('paper-logo-left-wrap');
+  const rightWrap = document.getElementById('paper-logo-right-wrap');
+  const centerWrap = document.getElementById('paper-logo-center-wrap');
+
+  centerWrap.classList.add('hidden');
+
+  if(!settings.logo){
+    logoImg.classList.add('hidden');
+    logoImg.removeAttribute('src');
+    return;
+  }
+
+  const sizePx = LOGO_SIZES[settings.logoSize] || LOGO_SIZES.mediano;
+  logoImg.src = settings.logo;
+  logoImg.style.width = sizePx + 'px';
+  logoImg.style.height = sizePx + 'px';
+  logoImg.classList.remove('hidden');
+
+  const pos = settings.logoPosition || 'izquierda';
+  if(pos === 'derecha'){
+    rightWrap.appendChild(logoImg);
+  } else if(pos === 'centro'){
+    centerWrap.appendChild(logoImg);
+    centerWrap.classList.remove('hidden');
+  } else {
+    leftWrap.appendChild(logoImg);
+  }
+}
+
 function renderInvoicePaper(invoice){
   const client = DB.clients.find(c=>c.id===invoice.clientId) || {name:'Cliente', phone:'', address:''};
   const s = DB.settings;
@@ -1034,9 +1090,7 @@ function renderInvoicePaper(invoice){
   document.getElementById('paper-biz-phone').textContent = s.businessPhone || '';
   document.getElementById('paper-biz-address').textContent = s.businessAddress || '';
 
-  const logoImg = document.getElementById('paper-logo');
-  if(s.logo){ logoImg.src = s.logo; logoImg.classList.remove('hidden'); }
-  else { logoImg.classList.add('hidden'); }
+  placeInvoiceLogo(s);
 
   document.getElementById('paper-invoice-number').textContent = invoice.number;
   document.getElementById('paper-invoice-date').textContent = invoice.date ? 'Fecha: ' + invoice.date : '';
@@ -1541,6 +1595,8 @@ function fillConfigForm(){
   document.getElementById('cfg-next-number').value = s.nextNumber || 1;
   document.getElementById('cfg-prefix').value = s.prefix || 'FAC-';
   document.getElementById('cfg-color-custom').value = s.accent || '#2F6F4E';
+  document.getElementById('cfg-logo-size').value = s.logoSize || 'mediano';
+  document.getElementById('cfg-logo-position').value = s.logoPosition || 'izquierda';
 
   const preview = document.getElementById('logo-preview');
   const placeholder = document.getElementById('logo-placeholder');
@@ -1562,6 +1618,8 @@ function setupConfigForm(){
   saveField('cfg-business-rnc', 'businessRnc');
   saveField('cfg-next-number', 'nextNumber', v=> Number(v)||1);
   saveField('cfg-prefix', 'prefix');
+  saveField('cfg-logo-size', 'logoSize');
+  saveField('cfg-logo-position', 'logoPosition');
 
   document.getElementById('cfg-color-custom').addEventListener('input', (e)=>{
     saveSettings({accent: e.target.value});
