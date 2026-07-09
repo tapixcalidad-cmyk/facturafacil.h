@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>FacturaFácil — Gestión de facturas y pedidos</title>
+<meta name="description" content="Crea facturas, controla clientes y pedidos pendientes desde el navegador.">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CjxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMUIyNDMxIi8+CjxyZWN0IHg9IjE0IiB5PSIxNCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiByeD0iOCIgZmlsbD0iIzJGNkY0RSIvPgo8dGV4dCB4PSIzMiIgeT0iMzkiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RkY8L3RleHQ+Cjwvc3ZnPgo=" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   FacturaFácil — sistema visual
+   Paleta: tinta (navy) + papel (cálido) + acento tipo "sello"
+   Tipografía: Fraunces (display) / Inter (UI) / IBM Plex Mono (cifras)
+   ========================================================= */
+
+:root{
+  --ink: #1B2431;
+  --ink-2: #2E3A4E;
+  --paper: #FBF9F5;
+  --paper-line: #E7E1D2;
+  --text: #22262B;
+  --muted: #6B7280;
+  --accent: #2F6F4E;      /* personalizable desde Ajustes */
+  --accent-ink: #ffffff;
+  --accent-soft: #E4EEE8;
+  --danger: #B3423A;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(27,36,49,.06), 0 8px 24px rgba(27,36,49,.08);
+  font-synthesis: none;
+}
+
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:#F1EEE7;
+  color:var(--text);
+  font-family:'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  margin:0 0 .2em;
+  letter-spacing:-.01em;
+}
+.muted{color:var(--muted);}
+.small{font-size:.82rem;}
+.hidden{display:none !important;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;font-size:.95rem;}
+
+/* ---------- Botones ---------- */
+.btn{
+  border:1px solid transparent;
+  border-radius:999px;
+  padding:.65rem 1.1rem;
+  font-weight:600;
+  font-size:.9rem;
+  transition:transform .1s ease, box-shadow .15s ease, background .15s ease;
+  background:var(--ink);
+  color:#fff;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--accent);color:var(--accent-ink);}
+.btn-primary:hover{box-shadow:var(--shadow);}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--paper-line);}
+.btn-ghost:hover{background:#fff;}
+.btn-sm{padding:.4rem .8rem;font-size:.82rem;}
+.btn-block{width:100%;}
+
+/* ---------- Login ---------- */
+.login-screen{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(47,111,78,.16), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(27,36,49,.14), transparent 45%),
+    var(--ink);
+  padding:1.5rem;
+}
+.login-card{
+  background:var(--paper);
+  border-radius:20px;
+  padding:2.4rem 2rem;
+  width:100%;max-width:400px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  text-align:center;
+}
+.login-brand{margin-bottom:1.6rem;}
+.login-mark{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:56px;height:56px;border-radius:16px;
+  background:var(--accent);color:#fff;
+  font-family:'Fraunces',serif;font-weight:700;font-size:1.3rem;
+  margin-bottom:.8rem;
+}
+.login-brand h1{font-size:1.6rem;}
+.login-brand p{color:var(--muted);font-size:.92rem;margin-top:.3rem;}
+.g-btn-wrap{display:flex;justify-content:center;margin-bottom:.8rem;min-height:44px;}
+.btn-google{
+  background:#fff;color:#1B2431;border:1px solid var(--paper-line);
+  display:flex;align-items:center;justify-content:center;gap:.6rem;
+}
+.btn-google:hover{background:#F5F3EE;}
+.login-divider{
+  display:flex;align-items:center;gap:.8rem;margin:1rem 0;color:var(--muted);font-size:.8rem;
+}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--paper-line);}
+.login-note code{background:#F0EDE4;padding:.1rem .3rem;border-radius:4px;font-size:.78rem;}
+.sync-status{font-size:.78rem;color:#D7DCE3;margin-right:.4rem;}
+.login-note{font-size:.76rem;color:var(--muted);margin-top:1.2rem;line-height:1.4;}
+
+/* ---------- Estructura de la app ---------- */
+.app{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  grid-template-rows:64px 1fr;
+  grid-template-areas:"top top" "side main";
+  min-height:100vh;
+}
+.topbar{
+  grid-area:top;
+  background:var(--ink);
+  color:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.4rem;
+}
+.brand{display:flex;align-items:center;gap:.6rem;font-family:'Fraunces',serif;}
+.brand-mark{
+  width:32px;height:32px;border-radius:8px;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;
+}
+.brand-logo{width:32px;height:32px;border-radius:8px;object-fit:cover;}
+.topbar-actions{display:flex;align-items:center;gap:.8rem;}
+.user-chip{font-size:.85rem;color:#D7DCE3;}
+.topbar .btn-ghost{color:#fff;border-color:rgba(255,255,255,.25);}
+.topbar .btn-ghost:hover{background:rgba(255,255,255,.08);}
+
+.sidenav{
+  grid-area:side;
+  background:#fff;
+  border-right:1px solid var(--paper-line);
+  padding:1.2rem .7rem;
+  display:flex;flex-direction:column;gap:.2rem;
+}
+.nav-item{
+  display:flex;align-items:center;gap:.7rem;
+  background:none;border:none;
+  padding:.7rem .8rem;border-radius:var(--radius-sm);
+  color:var(--muted);font-weight:600;font-size:.9rem;
+  text-align:left;
+}
+.nav-item svg{width:19px;height:19px;fill:currentColor;flex-shrink:0;}
+.nav-item:hover{background:#F5F3EE;}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);}
+
+.bottomnav{display:none;}
+
+.main{
+  grid-area:main;
+  padding:1.6rem 2rem 3rem;
+  max-width:1100px;
+  width:100%;
+}
+.panel-head{margin-bottom:1.2rem;}
+.panel-head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+
+/* ---------- Panel / estadísticas ---------- */
+.stat-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;
+}
+.stat-card{
+  background:#fff;border:1px solid var(--paper-line);border-radius:var(--radius);
+  padding:1.1rem 1.2rem;
+}
+.stat-num{
+  display:block;font-family:'IBM Plex Mono',monospace;font-size:1.9rem;font-weight:600;color:var(--ink);
+}
+.stat-label{font-size:.82rem;color:var(--muted);}
+
+.order-list{display:flex;flex-direction:column;gap:.6rem;}
+.order-row{
+  background:#fff;border:1px solid var(--paper-line);border-radius:var(--radius-sm);
+  padding:.8rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+}
+.order-row .who{font-weight:600;}
+.order-row .when{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:var(--muted);}
+.empty-note{color:var(--muted);font-size:.9rem;padding:1rem 0;}
+
+/* ---------- Filtros / búsqueda ---------- */
+.filter-row{display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;}
+.filter-row input, .filter-row select{
+  padding:.6rem .8rem;border:1px solid var(--paper-line);border-radius:var(--radius-sm);background:#fff;
+}
+.filter-row input{flex:1;min-width:180px;}
+#client-search{
+  width:100%;padding:.6rem .8rem;border:1px solid var(--paper-line);border-radius:var(--radius-sm);
+  margin-bottom:1rem;background:#fff;
+}
+
+/* ---------- Tabla de facturas ---------- */
+.invoice-table{display:flex;flex-direction:column;gap:.5rem;}
+.invoice-row{
+  background:#fff;border:1px solid var(--paper-line);border-radius:var(--radius-sm);
+  padding:.8rem 1rem;display:grid;
+  grid-template-columns:auto 1fr auto auto auto;
+  align-items:center;gap:1rem;
+}
+.invoice-row .num{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ink);}
+.invoice-row .status-pill{
+  font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  padding:.25rem .6rem;border-radius:999px;
+}
+.status-pendiente{background:#FBEBDD;color:#9A5B22;}
+.status-aceptada{background:var(--accent-soft);color:var(--accent);}
+.status-pagada{background:#DDE7F7;color:#2E4E8F;}
+.invoice-row .amount{font-family:'IBM Plex Mono',monospace;font-weight:600;}
+.row-actions{display:flex;gap:.4rem;}
+.icon-btn{
+  background:none;border:1px solid var(--paper-line);border-radius:var(--radius-sm);
+  width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:.9rem;
+}
+.icon-btn:hover{background:#F5F3EE;}
+
+/* ---------- Clientes ---------- */
+.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.8rem;}
+.client-card{
+  background:#fff;border:1px solid var(--paper-line);border-radius:var(--radius);
+  padding:1rem;
+}
+.client-card .name{font-weight:700;margin-bottom:.2rem;}
+.client-card .sub{font-size:.82rem;color:var(--muted);margin-bottom:.1rem;}
+.client-card .card-actions{margin-top:.7rem;display:flex;gap:.4rem;}
+
+/* ---------- Configuración ---------- */
+.config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;}
+.config-card{
+  background:#fff;border:1px solid var(--paper-line);border-radius:var(--radius);padding:1.1rem 1.2rem;
+}
+.config-card label{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-top:.7rem;}
+.config-card input, .config-card textarea{
+  width:100%;margin-top:.3rem;padding:.55rem .7rem;border:1px solid var(--paper-line);border-radius:var(--radius-sm);
+}
+.logo-preview-wrap{
+  width:100%;height:90px;border:1px dashed var(--paper-line);border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;margin-bottom:.6rem;overflow:hidden;background:#FAFAF8;
+}
+.logo-preview{max-height:80px;max-width:90%;object-fit:contain;}
+.logo-placeholder{color:var(--muted);font-size:.85rem;}
+#cfg-logo-input{margin-top:.4rem;}
+.color-row{display:flex;gap:.5rem;margin:.6rem 0;flex-wrap:wrap;}
+.color-swatch{
+  width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--paper-line);
+}
+.color-swatch.selected{box-shadow:0 0 0 2px var(--ink);}
+
+/* ---------- Modales ---------- */
+.modal{
+  position:fixed;inset:0;background:rgba(27,36,49,.55);
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:2rem 1rem;overflow-y:auto;z-index:50;
+}
+.modal-card{
+  background:#fff;border-radius:var(--radius);padding:1.4rem 1.5rem;width:100%;max-width:440px;
+}
+.modal-card-lg{max-width:640px;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.modal-card label{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-top:.7rem;}
+.modal-card input, .modal-card select, .modal-card textarea{
+  width:100%;margin-top:.3rem;padding:.6rem .7rem;border:1px solid var(--paper-line);border-radius:var(--radius-sm);
+}
+.modal-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.4rem;flex-wrap:wrap;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem;}
+
+.invoice-item-row{display:grid;grid-template-columns:1fr 70px 100px 32px;gap:.5rem;margin-top:.5rem;align-items:center;}
+.invoice-item-row input{margin-top:0;}
+.invoice-totals{
+  display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem;font-family:'IBM Plex Mono',monospace;font-size:1.1rem;
+}
+
+/* ---------- Papel de factura (firma visual del diseño) ---------- */
+.invoice-paper{
+  background:var(--paper);
+  border-radius:2px;
+  padding:2rem 2rem 1.6rem;
+  position:relative;
+  background-image: repeating-linear-gradient(to right, transparent 0 11px, rgba(27,36,49,.05) 11px 12px);
+  background-position:0 0;
+  border-top:6px dashed var(--paper-line);
+}
+.invoice-paper-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;}
+.invoice-biz{display:flex;align-items:center;gap:.7rem;}
+.paper-logo{width:44px;height:44px;object-fit:contain;border-radius:8px;}
+.paper-biz-name{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;}
+.paper-biz-sub{font-size:.8rem;color:var(--muted);}
+.invoice-meta{text-align:right;}
+.invoice-meta-num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:1rem;color:var(--ink);}
+
+.paper-stamp{
+  position:absolute;top:1.6rem;right:2rem;
+  border:3px solid var(--danger);color:var(--danger);
+  font-family:'Fraunces',serif;font-weight:700;font-size:1rem;letter-spacing:.08em;
+  padding:.3rem .9rem;border-radius:8px;transform:rotate(-8deg);
+  opacity:.85;
+}
+.paper-stamp.stamp-aceptada{border-color:var(--accent);color:var(--accent);}
+.paper-stamp.stamp-pagada{border-color:#2E4E8F;color:#2E4E8F;}
+
+.invoice-client-block{margin:1.4rem 0 1rem;}
+.paper-client-name{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;}
+
+.invoice-items-table{width:100%;border-collapse:collapse;margin-top:.6rem;}
+.invoice-items-table th{
+  text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+  border-bottom:1px solid var(--paper-line);padding:.4rem 0;
+}
+.invoice-items-table td{padding:.5rem 0;border-bottom:1px solid var(--paper-line);font-size:.92rem;}
+.invoice-items-table th:last-child, .invoice-items-table td:last-child,
+.invoice-items-table th:nth-child(2), .invoice-items-table td:nth-child(2),
+.invoice-items-table th:nth-child(3), .invoice-items-table td:nth-child(3){text-align:right;}
+
+.invoice-total-row{
+  display:flex;justify-content:flex-end;gap:.8rem;margin-top:.8rem;
+  font-family:'IBM Plex Mono',monospace;font-size:1.2rem;font-weight:600;
+  border-top:2px solid var(--ink);padding-top:.6rem;
+}
+.paper-notes{margin-top:1rem;font-size:.85rem;color:var(--muted);white-space:pre-wrap;}
+.invoice-footer{margin-top:1.6rem;text-align:center;font-size:.78rem;color:var(--muted);font-style:italic;}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 860px){
+  .app{
+    grid-template-columns:1fr;
+    grid-template-rows:60px 1fr 62px;
+    grid-template-areas:"top" "main" "bottom";
+  }
+  .sidenav{display:none;}
+  .bottomnav{
+    display:flex;grid-area:bottom;background:#fff;border-top:1px solid var(--paper-line);
+    justify-content:space-around;align-items:center;padding:.3rem 0;
+  }
+  .bottomnav .nav-item{flex-direction:column;gap:.15rem;font-size:.65rem;padding:.4rem .3rem;flex:1;text-align:center;align-items:center;}
+  .bottomnav .nav-item svg{width:20px;height:20px;}
+  .main{padding:1rem 1rem 1.4rem;}
+  .grid-2{grid-template-columns:1fr;}
+  .invoice-row{grid-template-columns:1fr 1fr;grid-template-areas:"num status" "amount actions" "date date";}
+}
+
+/* ---------- Impresión ---------- */
+@media print{
+  body *{visibility:hidden;}
+  #invoice-paper, #invoice-paper *{visibility:visible;}
+  #invoice-paper{position:absolute;top:0;left:0;width:100%;border-top:none;}
+  .no-print, .no-print *{display:none !important;}
+}
+
+</style>
+
+<!-- Firebase (autenticación con Google + base de datos en la nube) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* =========================================================
+   firebase-config.js — tus claves de Firebase
+   ---------------------------------------------------------
+   1. Ve a https://console.firebase.google.com
+   2. Crea un proyecto (gratis).
+   3. Dentro del proyecto: ⚙️ Configuración del proyecto → "Tus apps"
+      → ícono "</>" (Web) → registra una app.
+   4. Firebase te mostrará un objeto firebaseConfig como el de abajo.
+      Copia y pega TUS valores reemplazando los que están aquí.
+   5. En el menú lateral activa:
+      - "Authentication" → pestaña "Sign-in method" → habilita "Google".
+      - "Firestore Database" → "Crear base de datos" → modo producción.
+   6. En "Authentication" → "Settings" → "Authorized domains" agrega el
+      dominio donde publiques tu página, por ejemplo:
+      tu-usuario.github.io
+   ========================================================= */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDGbq9DLUgritN0TOk0fhf6xFjdph9sHKU",
+  authDomain: "facturafacil-86188.firebaseapp.com",
+  projectId: "facturafacil-86188",
+  storageBucket: "facturafacil-86188.firebasestorage.app",
+  messagingSenderId: "382246163149",
+  appId: "1:382246163149:web:66f3d7a7dcf40fdb098f84"
+};
+
+// ¿Ya reemplazaste los valores de arriba con los tuyos?
+const FIREBASE_CONFIGURED = firebaseConfig.apiKey !== "TU_API_KEY";
+
+let firebaseApp = null;
+let auth = null;
+let firestore = null;
+
+if(FIREBASE_CONFIGURED){
+  firebaseApp = firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  firestore = firebase.firestore();
+}
+
+</script>
+<!-- Librerías para exportar la factura a PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ============ PANTALLA DE INICIO DE SESIÓN ============ -->
+<section id="view-login" class="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="login-mark">FF</span>
+      <h1>FacturaFácil</h1>
+      <p>Tus facturas, clientes y pedidos, siempre a la mano.</p>
+    </div>
+
+    <button id="btn-google-login" class="btn btn-google btn-block">Iniciar sesión con Google</button>
+    <p id="firebase-warning" class="login-note hidden">
+      Configura Firebase en <code>js/firebase-config.js</code> para activar el inicio de sesión con Google y la sincronización en la nube.
+    </p>
+
+    <div class="login-divider"><span>o</span></div>
+
+    <button id="btn-local-login" class="btn btn-ghost btn-block">Continuar sin cuenta (solo este dispositivo)</button>
+
+    <p class="login-note">
+      Con Google, tus facturas y clientes se guardan en la nube y puedes verlos desde cualquier dispositivo. Sin cuenta, todo se guarda únicamente en este navegador.
+    </p>
+  </div>
+</section>
+
+<!-- ============ APLICACIÓN ============ -->
+<div id="view-app" class="app hidden">
+
+  <!-- Barra lateral (escritorio) / Barra superior -->
+  <header class="topbar">
+    <div class="brand" id="brand-logo-wrap">
+      <img id="brand-logo-img" src="" alt="" class="brand-logo hidden">
+      <span id="brand-mark" class="brand-mark">FF</span>
+      <strong id="brand-name">FacturaFácil</strong>
+    </div>
+    <div class="topbar-actions">
+      <span id="sync-status" class="sync-status"></span>
+      <span id="user-chip" class="user-chip"></span>
+      <button id="btn-logout" class="btn btn-ghost btn-sm">Salir</button>
+    </div>
+  </header>
+
+  <nav class="sidenav" id="sidenav">
+    <button class="nav-item active" data-view="dashboard">
+      <svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z"/></svg>
+      <span>Panel</span>
+    </button>
+    <button class="nav-item" data-view="facturas">
+      <svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6V2zm8 1.5V8h4.5"/></svg>
+      <span>Facturas</span>
+    </button>
+    <button class="nav-item" data-view="clientes">
+      <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z"/></svg>
+      <span>Clientes</span>
+    </button>
+    <button class="nav-item" data-view="pedidos">
+      <svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zm0 5l9 4 9-4M3 12v5l9 4 9-4v-5"/></svg>
+      <span>Pedidos</span>
+    </button>
+    <button class="nav-item" data-view="config">
+      <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM19.4 13a7.6 7.6 0 000-2l2-1.5-2-3.5-2.4 1a7.7 7.7 0 00-1.7-1L15 3h-6l-.3 2.5a7.7 7.7 0 00-1.7 1l-2.4-1-2 3.5L4.6 11a7.6 7.6 0 000 2l-2 1.5 2 3.5 2.4-1a7.7 7.7 0 001.7 1L9 21h6l.3-2.5a7.7 7.7 0 001.7-1l2.4 1 2-3.5-2-1.5z"/></svg>
+      <span>Ajustes</span>
+    </button>
+  </nav>
+
+  <main class="main">
+
+    <!-- ---- PANEL / DASHBOARD ---- -->
+    <section id="panel-dashboard" class="panel">
+      <div class="panel-head">
+        <h2>Panel</h2>
+        <p class="muted">Resumen de tu negocio hoy</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <span class="stat-num" id="stat-pendientes">0</span>
+          <span class="stat-label">Facturas pendientes</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" id="stat-aceptadas">0</span>
+          <span class="stat-label">Facturas aceptadas</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" id="stat-clientes">0</span>
+          <span class="stat-label">Clientes</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" id="stat-entregas">0</span>
+          <span class="stat-label">Entregas esta semana</span>
+        </div>
+      </div>
+
+      <div class="panel-head" style="margin-top:2rem;">
+        <h3>Próximas entregas</h3>
+      </div>
+      <div id="upcoming-list" class="order-list"></div>
+    </section>
+
+    <!-- ---- FACTURAS ---- -->
+    <section id="panel-facturas" class="panel hidden">
+      <div class="panel-head panel-head-row">
+        <div>
+          <h2>Facturas</h2>
+          <p class="muted">Crea, edita e imprime tus facturas</p>
+        </div>
+        <button class="btn btn-primary" id="btn-new-invoice">+ Nueva factura</button>
+      </div>
+
+      <div class="filter-row">
+        <input type="search" id="invoice-search" placeholder="Buscar por cliente o número...">
+        <select id="invoice-filter-status">
+          <option value="todas">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="aceptada">Aceptada</option>
+          <option value="pagada">Pagada</option>
+        </select>
+      </div>
+
+      <div id="invoice-list" class="invoice-table"></div>
+    </section>
+
+    <!-- ---- CLIENTES ---- -->
+    <section id="panel-clientes" class="panel hidden">
+      <div class="panel-head panel-head-row">
+        <div>
+          <h2>Clientes</h2>
+          <p class="muted">Guarda la información de tus clientes</p>
+        </div>
+        <button class="btn btn-primary" id="btn-new-client">+ Nuevo cliente</button>
+      </div>
+      <input type="search" id="client-search" placeholder="Buscar cliente...">
+      <div id="client-list" class="client-grid"></div>
+    </section>
+
+    <!-- ---- PEDIDOS / TRABAJOS PENDIENTES ---- -->
+    <section id="panel-pedidos" class="panel hidden">
+      <div class="panel-head">
+        <h2>Pedidos y entregas</h2>
+        <p class="muted">Control interno de fechas de entrega de tus trabajos (no se imprime al cliente)</p>
+      </div>
+      <div id="pedidos-list" class="order-list"></div>
+    </section>
+
+    <!-- ---- CONFIGURACIÓN ---- -->
+    <section id="panel-config" class="panel hidden">
+      <div class="panel-head">
+        <h2>Ajustes</h2>
+        <p class="muted">Personaliza tu marca y tu negocio</p>
+      </div>
+
+      <div class="config-grid">
+        <div class="config-card">
+          <h3>Negocio</h3>
+          <label>Nombre del negocio
+            <input type="text" id="cfg-business-name" placeholder="Mi Negocio">
+          </label>
+          <label>Teléfono
+            <input type="text" id="cfg-business-phone" placeholder="809-000-0000">
+          </label>
+          <label>Dirección
+            <input type="text" id="cfg-business-address" placeholder="Calle, ciudad">
+          </label>
+          <label>RNC / Identificación fiscal (opcional)
+            <input type="text" id="cfg-business-rnc" placeholder="000-00000-0">
+          </label>
+        </div>
+
+        <div class="config-card">
+          <h3>Logo</h3>
+          <div class="logo-preview-wrap">
+            <img id="logo-preview" class="logo-preview hidden" alt="Logo">
+            <span id="logo-placeholder" class="logo-placeholder">Sin logo</span>
+          </div>
+          <input type="file" id="cfg-logo-input" accept="image/*">
+          <button class="btn btn-ghost btn-sm" id="btn-remove-logo">Quitar logo</button>
+        </div>
+
+        <div class="config-card">
+          <h3>Color de la marca</h3>
+          <p class="muted small">Este color se usa en botones, encabezados y en tus facturas.</p>
+          <div class="color-row" id="color-row"></div>
+          <label>Color personalizado
+            <input type="color" id="cfg-color-custom" value="#2F6F4E">
+          </label>
+        </div>
+
+        <div class="config-card">
+          <h3>Numeración de facturas</h3>
+          <label>Próximo número de factura
+            <input type="number" id="cfg-next-number" min="1">
+          </label>
+          <label>Prefijo
+            <input type="text" id="cfg-prefix" placeholder="FAC-">
+          </label>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Barra inferior para móvil -->
+  <nav class="bottomnav" id="bottomnav">
+    <button class="nav-item active" data-view="dashboard">
+      <svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z"/></svg>
+      <span>Panel</span>
+    </button>
+    <button class="nav-item" data-view="facturas">
+      <svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6V2zm8 1.5V8h4.5"/></svg>
+      <span>Facturas</span>
+    </button>
+    <button class="nav-item" data-view="clientes">
+      <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z"/></svg>
+      <span>Clientes</span>
+    </button>
+    <button class="nav-item" data-view="pedidos">
+      <svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zm0 5l9 4 9-4M3 12v5l9 4 9-4v-5"/></svg>
+      <span>Pedidos</span>
+    </button>
+    <button class="nav-item" data-view="config">
+      <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM19.4 13a7.6 7.6 0 000-2l2-1.5-2-3.5-2.4 1a7.7 7.7 0 00-1.7-1L15 3h-6l-.3 2.5a7.7 7.7 0 00-1.7 1l-2.4-1-2 3.5L4.6 11a7.6 7.6 0 000 2l-2 1.5 2 3.5 2.4-1a7.7 7.7 0 001.7 1L9 21h6l.3-2.5a7.7 7.7 0 001.7-1l2.4 1 2-3.5-2-1.5z"/></svg>
+      <span>Ajustes</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ============ MODAL: CLIENTE ============ -->
+<div id="modal-client" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="client-modal-title">Nuevo cliente</h3>
+      <button class="icon-btn modal-close" data-close="modal-client">✕</button>
+    </div>
+    <input type="hidden" id="client-id">
+    <label>Nombre completo *<input type="text" id="client-name" required></label>
+    <label>Teléfono<input type="text" id="client-phone"></label>
+    <label>Correo<input type="email" id="client-email"></label>
+    <label>Dirección<input type="text" id="client-address"></label>
+    <label>Notas<textarea id="client-notes" rows="2"></textarea></label>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close="modal-client">Cancelar</button>
+      <button class="btn btn-primary" id="btn-save-client">Guardar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: FACTURA (crear/editar) ============ -->
+<div id="modal-invoice" class="modal hidden">
+  <div class="modal-card modal-card-lg">
+    <div class="modal-head">
+      <h3 id="invoice-modal-title">Nueva factura</h3>
+      <button class="icon-btn modal-close" data-close="modal-invoice">✕</button>
+    </div>
+    <input type="hidden" id="invoice-id">
+
+    <div class="grid-2">
+      <label>Cliente *
+        <select id="invoice-client"></select>
+      </label>
+      <label>Estado
+        <select id="invoice-status">
+          <option value="pendiente">Pendiente</option>
+          <option value="aceptada">Aceptada</option>
+          <option value="pagada">Pagada</option>
+        </select>
+      </label>
+      <label>Fecha de factura
+        <input type="date" id="invoice-date">
+      </label>
+      <label>Fecha de entrega del trabajo
+        <input type="date" id="invoice-delivery">
+      </label>
+    </div>
+
+    <h4>Artículos / Servicios</h4>
+    <div id="invoice-items"></div>
+    <button class="btn btn-ghost btn-sm" id="btn-add-item">+ Agregar línea</button>
+
+    <label>Notas para el cliente<textarea id="invoice-notes" rows="2"></textarea></label>
+
+    <div class="invoice-totals">
+      <span>Total: </span><strong id="invoice-total-preview">RD$ 0.00</strong>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close="modal-invoice">Cancelar</button>
+      <button class="btn btn-primary" id="btn-save-invoice">Guardar factura</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: VER / IMPRIMIR FACTURA ============ -->
+<div id="modal-view-invoice" class="modal hidden">
+  <div class="modal-card modal-card-lg no-print-pad">
+    <div class="modal-head no-print">
+      <h3>Factura</h3>
+      <button class="icon-btn modal-close" data-close="modal-view-invoice">✕</button>
+    </div>
+
+    <div id="invoice-paper" class="invoice-paper">
+      <div class="invoice-paper-head">
+        <div class="invoice-biz">
+          <img id="paper-logo" class="paper-logo hidden" alt="Logo">
+          <div>
+            <div id="paper-biz-name" class="paper-biz-name">Mi Negocio</div>
+            <div id="paper-biz-phone" class="paper-biz-sub"></div>
+            <div id="paper-biz-address" class="paper-biz-sub"></div>
+          </div>
+        </div>
+        <div class="invoice-meta">
+          <div class="invoice-meta-num" id="paper-invoice-number">FAC-0001</div>
+          <div id="paper-invoice-date" class="paper-biz-sub"></div>
+          <div id="paper-invoice-delivery" class="paper-biz-sub"></div>
+        </div>
+      </div>
+
+      <div id="paper-stamp" class="paper-stamp">PENDIENTE</div>
+
+      <div class="invoice-client-block">
+        <span class="muted small">Facturar a</span>
+        <div id="paper-client-name" class="paper-client-name">—</div>
+        <div id="paper-client-sub" class="paper-biz-sub"></div>
+      </div>
+
+      <table class="invoice-items-table">
+        <thead><tr><th>Descripción</th><th>Cant.</th><th>Precio</th><th>Importe</th></tr></thead>
+        <tbody id="paper-items-body"></tbody>
+      </table>
+
+      <div class="invoice-total-row">
+        <span>Total</span>
+        <strong id="paper-total">RD$ 0.00</strong>
+      </div>
+
+      <div id="paper-notes" class="paper-notes"></div>
+
+      <div class="invoice-footer">Gracias por su preferencia.</div>
+    </div>
+
+    <div class="modal-actions no-print">
+      <button class="btn btn-ghost" id="btn-print-invoice">🖨️ Imprimir</button>
+      <button class="btn btn-ghost" id="btn-pdf-invoice">⬇️ Exportar PDF</button>
+      <button class="btn btn-primary" id="btn-share-invoice">📤 Compartir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+
+/* ===== storage.js ===== */
+/* =========================================================
+   storage.js — capa de datos (todo se guarda en este navegador)
+   ========================================================= */
+
+const DB_KEY = 'facturafacil_db_v1';
+
+const ACCENT_PRESETS = ['#2F6F4E', '#B3423A', '#2E4E8F', '#8A5A2E', '#6B4E9E', '#1B2431'];
+
+function defaultDB(){
+  return {
+    settings:{
+      businessName:'Mi Negocio',
+      businessPhone:'',
+      businessAddress:'',
+      businessRnc:'',
+      logo:'',
+      accent:'#2F6F4E',
+      nextNumber:1,
+      prefix:'FAC-'
+    },
+    clients:[],
+    invoices:[],
+    user:null
+  };
+}
+
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(DB_KEY);
+    if(!raw) return defaultDB();
+    const parsed = JSON.parse(raw);
+    // aseguramos que existan todas las llaves aunque la versión guardada sea vieja
+    return Object.assign(defaultDB(), parsed, {
+      settings: Object.assign(defaultDB().settings, parsed.settings || {})
+    });
+  }catch(e){
+    console.error('Error leyendo datos guardados, se inicia una base vacía.', e);
+    return defaultDB();
+  }
+}
+
+function saveDB(db){
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+let DB = loadDB();
+
+/* ---------------- Sincronización en la nube (Firestore) ---------------- */
+let CLOUD_MODE = false;
+let CLOUD_UID = null;
+let cloudUnsubscribe = null;
+let suppressNextCloudEcho = false;
+
+function startCloudSync(uid){
+  CLOUD_MODE = true;
+  CLOUD_UID = uid;
+  if(cloudUnsubscribe) cloudUnsubscribe();
+
+  cloudUnsubscribe = firestore.collection('facturafacil_users').doc(uid)
+    .onSnapshot((doc)=>{
+      if(doc.exists){
+        const remote = doc.data();
+        DB = Object.assign(defaultDB(), remote, {
+          settings: Object.assign(defaultDB().settings, remote.settings || {}),
+          user: DB.user // el usuario se maneja aparte, vía auth
+        });
+      } else {
+        // primer inicio de sesión en la nube: subimos lo que haya localmente
+        firestore.collection('facturafacil_users').doc(uid).set(stripUser(DB));
+      }
+      if(typeof onCloudDataChange === 'function') onCloudDataChange();
+    }, (err)=>{
+      console.error('Error de sincronización con Firestore:', err);
+    });
+}
+
+function stopCloudSync(){
+  if(cloudUnsubscribe) cloudUnsubscribe();
+  cloudUnsubscribe = null;
+  CLOUD_MODE = false;
+  CLOUD_UID = null;
+}
+
+function stripUser(db){
+  const copy = Object.assign({}, db);
+  delete copy.user;
+  return copy;
+}
+
+function saveDBCloud(){
+  if(!CLOUD_UID) return;
+  firestore.collection('facturafacil_users').doc(CLOUD_UID)
+    .set(stripUser(DB))
+    .catch(err=> console.error('No se pudo guardar en la nube:', err));
+}
+
+function persist(){
+  if(CLOUD_MODE){ saveDBCloud(); }
+  else { saveDB(DB); }
+}
+
+function uid(prefix){
+  return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+/* ---------------- Clientes ---------------- */
+function upsertClient(client){
+  if(client.id){
+    const i = DB.clients.findIndex(c=>c.id===client.id);
+    if(i>-1) DB.clients[i] = client;
+  } else {
+    client.id = uid('cli');
+    DB.clients.push(client);
+  }
+  persist();
+  return client;
+}
+function deleteClient(id){
+  DB.clients = DB.clients.filter(c=>c.id!==id);
+  persist();
+}
+
+/* ---------------- Facturas ---------------- */
+function nextInvoiceNumber(){
+  const n = DB.settings.nextNumber || 1;
+  return DB.settings.prefix + String(n).padStart(4,'0');
+}
+function upsertInvoice(invoice){
+  if(invoice.id){
+    const i = DB.invoices.findIndex(v=>v.id===invoice.id);
+    if(i>-1) DB.invoices[i] = invoice;
+  } else {
+    invoice.id = uid('inv');
+    invoice.number = nextInvoiceNumber();
+    DB.settings.nextNumber = (DB.settings.nextNumber || 1) + 1;
+    DB.invoices.push(invoice);
+  }
+  persist();
+  return invoice;
+}
+function deleteInvoice(id){
+  DB.invoices = DB.invoices.filter(v=>v.id!==id);
+  persist();
+}
+function invoiceTotal(invoice){
+  return (invoice.items||[]).reduce((sum,it)=> sum + (Number(it.qty)||0) * (Number(it.price)||0), 0);
+}
+
+/* ---------------- Ajustes ---------------- */
+function saveSettings(patch){
+  DB.settings = Object.assign(DB.settings, patch);
+  persist();
+}
+
+
+/* ===== auth.js ===== */
+/* =========================================================
+   auth.js — inicio de sesión con Google (vía Firebase) o modo local
+   ========================================================= */
+
+function loginLocal(){
+  if(CLOUD_MODE) stopCloudSync();
+  DB = loadDB(); // aseguramos que usamos los datos locales, no restos de la nube
+  DB.user = { name:'Usuario local', email:'', picture:'', provider:'local' };
+  persist();
+  enterApp();
+}
+
+async function loginGoogle(){
+  if(!FIREBASE_CONFIGURED){
+    alert('Todavía no se ha configurado Firebase en js/firebase-config.js. Puedes usar "Continuar sin cuenta" mientras tanto.');
+    return;
+  }
+  try{
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+    // onAuthStateChanged se encarga del resto
+  }catch(e){
+    console.error(e);
+    alert('No se pudo iniciar sesión con Google: ' + (e.message || e));
+  }
+}
+
+async function logout(){
+  if(CLOUD_MODE){
+    stopCloudSync();
+    try{ await auth.signOut(); }catch(e){ console.error(e); }
+  }
+  DB = loadDB(); // al salir, volvemos a ver solo los datos locales de este navegador
+  DB.user = null;
+  document.getElementById('view-app').classList.add('hidden');
+  document.getElementById('view-login').classList.remove('hidden');
+}
+
+function enterApp(){
+  document.getElementById('view-login').classList.add('hidden');
+  document.getElementById('view-app').classList.remove('hidden');
+  renderUserChip();
+  renderSyncStatus();
+  if(typeof initAppData === 'function') initAppData();
+}
+
+function renderUserChip(){
+  const chip = document.getElementById('user-chip');
+  chip.textContent = DB.user ? (DB.user.name + (DB.user.email ? ' · '+DB.user.email : '')) : '';
+}
+
+function renderSyncStatus(){
+  const el = document.getElementById('sync-status');
+  if(!el) return;
+  el.textContent = CLOUD_MODE ? '☁️ Sincronizado' : '💾 Solo en este dispositivo';
+}
+
+/* Se llama cada vez que llegan datos nuevos desde Firestore
+   (por ejemplo, si editas la misma cuenta desde otro dispositivo) */
+function onCloudDataChange(){
+  renderSyncStatus();
+  if(typeof refreshCurrentView === 'function') refreshCurrentView();
+}
+
+window.addEventListener('load', ()=>{
+  document.getElementById('btn-local-login').addEventListener('click', loginLocal);
+  document.getElementById('btn-google-login').addEventListener('click', loginGoogle);
+  document.getElementById('btn-logout').addEventListener('click', logout);
+
+  if(!FIREBASE_CONFIGURED){
+    document.getElementById('firebase-warning').classList.remove('hidden');
+  }
+
+  if(FIREBASE_CONFIGURED){
+    auth.onAuthStateChanged((user)=>{
+      if(user){
+        DB.user = {
+          name: user.displayName || 'Usuario de Google',
+          email: user.email || '',
+          picture: user.photoURL || '',
+          provider: 'google',
+          uid: user.uid
+        };
+        startCloudSync(user.uid);
+        enterApp();
+      } else if(DB.user && DB.user.provider === 'local'){
+        enterApp();
+      }
+    });
+  } else if(DB.user && DB.user.provider === 'local'){
+    enterApp();
+  }
+});
+
+
+/* ===== invoice-render.js ===== */
+/* =========================================================
+   invoice-render.js — pinta la "hoja" de la factura
+   ========================================================= */
+
+function money(n){
+  return 'RD$ ' + (Number(n)||0).toLocaleString('es-DO', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function renderInvoicePaper(invoice){
+  const client = DB.clients.find(c=>c.id===invoice.clientId) || {name:'Cliente', phone:'', address:''};
+  const s = DB.settings;
+
+  document.getElementById('paper-biz-name').textContent = s.businessName || 'Mi Negocio';
+  document.getElementById('paper-biz-phone').textContent = s.businessPhone || '';
+  document.getElementById('paper-biz-address').textContent = s.businessAddress || '';
+
+  const logoImg = document.getElementById('paper-logo');
+  if(s.logo){ logoImg.src = s.logo; logoImg.classList.remove('hidden'); }
+  else { logoImg.classList.add('hidden'); }
+
+  document.getElementById('paper-invoice-number').textContent = invoice.number;
+  document.getElementById('paper-invoice-date').textContent = invoice.date ? 'Fecha: ' + invoice.date : '';
+  document.getElementById('paper-invoice-delivery').textContent = invoice.delivery ? 'Entrega: ' + invoice.delivery : '';
+
+  const stamp = document.getElementById('paper-stamp');
+  stamp.className = 'paper-stamp stamp-' + invoice.status;
+  stamp.textContent = invoice.status.toUpperCase();
+
+  document.getElementById('paper-client-name').textContent = client.name;
+  document.getElementById('paper-client-sub').textContent = [client.phone, client.address].filter(Boolean).join(' · ');
+
+  const body = document.getElementById('paper-items-body');
+  body.innerHTML = '';
+  (invoice.items||[]).forEach(it=>{
+    const tr = document.createElement('tr');
+    const importe = (Number(it.qty)||0) * (Number(it.price)||0);
+    tr.innerHTML = `<td>${escapeHtml(it.desc||'')}</td><td>${it.qty||0}</td><td>${money(it.price)}</td><td>${money(importe)}</td>`;
+    body.appendChild(tr);
+  });
+
+  document.getElementById('paper-total').textContent = money(invoiceTotal(invoice));
+  document.getElementById('paper-notes').textContent = invoice.notes || '';
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+
+/* ===== pdf-export.js ===== */
+/* =========================================================
+   pdf-export.js — exportar a PDF e imprimir/compartir
+   ========================================================= */
+
+async function invoiceToPdfBlob(){
+  const node = document.getElementById('invoice-paper');
+  const canvas = await html2canvas(node, { scale:2, backgroundColor:'#FBF9F5' });
+  const imgData = canvas.toDataURL('image/png');
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit:'pt', format:'letter' });
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  const imgW = pageWidth - 60;
+  const imgH = (canvas.height / canvas.width) * imgW;
+  let renderH = imgH;
+  if(renderH > pageHeight - 60) renderH = pageHeight - 60;
+
+  pdf.addImage(imgData, 'PNG', 30, 30, imgW, renderH);
+  return pdf.output('blob');
+}
+
+async function exportInvoicePdf(invoiceNumber){
+  const blob = await invoiceToPdfBlob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (invoiceNumber || 'factura') + '.pdf';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+}
+
+async function shareInvoice(invoiceNumber){
+  try{
+    const blob = await invoiceToPdfBlob();
+    const file = new File([blob], (invoiceNumber||'factura') + '.pdf', {type:'application/pdf'});
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({
+        files:[file],
+        title:'Factura ' + invoiceNumber,
+        text:'Te comparto la factura ' + invoiceNumber
+      });
+      return;
+    }
+  }catch(e){
+    console.warn('No se pudo compartir el archivo directamente, se descargará en su lugar.', e);
+  }
+  // Alternativa si el navegador no soporta compartir archivos (ej. escritorio)
+  exportInvoicePdf(invoiceNumber);
+}
+
+function printInvoice(){
+  window.print();
+}
+
+
+/* ===== app.js ===== */
+/* =========================================================
+   app.js — controlador principal de la aplicación
+   ========================================================= */
+
+let currentView = 'dashboard';
+let itemRowCount = 0;
+
+function initAppData(){
+  applyAccent(DB.settings.accent);
+  applyBrand();
+  renderColorPresets();
+  fillConfigForm();
+  goView('dashboard');
+  setupNav();
+  setupModals();
+  setupClientForm();
+  setupInvoiceForm();
+  setupInvoiceViewActions();
+  setupConfigForm();
+}
+
+/* Se llama cuando llegan datos nuevos desde Firestore (otro dispositivo) */
+function refreshCurrentView(){
+  applyAccent(DB.settings.accent);
+  applyBrand();
+  if(currentView==='dashboard') renderDashboard();
+  if(currentView==='facturas') renderInvoiceList();
+  if(currentView==='clientes') renderClientList();
+  if(currentView==='pedidos') renderPedidos();
+  if(currentView==='config'){ fillConfigForm(); renderColorPresets(); }
+}
+
+/* ---------------- Navegación ---------------- */
+function setupNav(){
+  document.querySelectorAll('.nav-item').forEach(btn=>{
+    btn.addEventListener('click', ()=> goView(btn.dataset.view));
+  });
+}
+
+function goView(view){
+  currentView = view;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('panel-' + view).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  if(view==='dashboard') renderDashboard();
+  if(view==='facturas') renderInvoiceList();
+  if(view==='clientes') renderClientList();
+  if(view==='pedidos') renderPedidos();
+}
+
+/* ---------------- Marca / color ---------------- */
+function applyAccent(hex){
+  document.documentElement.style.setProperty('--accent', hex);
+  // ajustamos un tono suave derivado para fondos
+  document.documentElement.style.setProperty('--accent-soft', hexToSoft(hex));
+}
+function hexToSoft(hex){
+  const {r,g,b} = hexToRgb(hex);
+  return `rgba(${r},${g},${b},0.14)`;
+}
+function hexToRgb(hex){
+  const m = hex.replace('#','');
+  const bigint = parseInt(m.length===3 ? m.split('').map(c=>c+c).join('') : m, 16);
+  return { r:(bigint>>16)&255, g:(bigint>>8)&255, b:bigint&255 };
+}
+
+function applyBrand(){
+  document.getElementById('brand-name').textContent = DB.settings.businessName || 'FacturaFácil';
+  const logoImg = document.getElementById('brand-logo-img');
+  const mark = document.getElementById('brand-mark');
+  if(DB.settings.logo){
+    logoImg.src = DB.settings.logo;
+    logoImg.classList.remove('hidden');
+    mark.classList.add('hidden');
+  } else {
+    logoImg.classList.add('hidden');
+    mark.classList.remove('hidden');
+  }
+}
+
+function renderColorPresets(){
+  const row = document.getElementById('color-row');
+  row.innerHTML = '';
+  ACCENT_PRESETS.forEach(hex=>{
+    const sw = document.createElement('button');
+    sw.type = 'button';
+    sw.className = 'color-swatch' + (hex.toLowerCase()===DB.settings.accent.toLowerCase() ? ' selected' : '');
+    sw.style.background = hex;
+    sw.addEventListener('click', ()=>{
+      saveSettings({accent:hex});
+      applyAccent(hex);
+      renderColorPresets();
+    });
+    row.appendChild(sw);
+  });
+}
+
+/* ---------------- Dashboard ---------------- */
+function renderDashboard(){
+  const pendientes = DB.invoices.filter(i=>i.status==='pendiente').length;
+  const aceptadas = DB.invoices.filter(i=>i.status==='aceptada').length;
+  document.getElementById('stat-pendientes').textContent = pendientes;
+  document.getElementById('stat-aceptadas').textContent = aceptadas;
+  document.getElementById('stat-clientes').textContent = DB.clients.length;
+
+  const now = new Date();
+  const weekAhead = new Date(); weekAhead.setDate(now.getDate()+7);
+  const upcoming = DB.invoices.filter(i=>{
+    if(!i.delivery) return false;
+    const d = new Date(i.delivery + 'T00:00:00');
+    return d >= stripTime(now) && d <= weekAhead;
+  }).sort((a,b)=> a.delivery.localeCompare(b.delivery));
+
+  document.getElementById('stat-entregas').textContent = upcoming.length;
+
+  const list = document.getElementById('upcoming-list');
+  list.innerHTML = '';
+  if(upcoming.length===0){
+    list.innerHTML = '<p class="empty-note">No tienes entregas programadas para los próximos 7 días.</p>';
+  } else {
+    upcoming.forEach(i=> list.appendChild(orderRow(i)));
+  }
+}
+function stripTime(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+function orderRow(invoice){
+  const client = DB.clients.find(c=>c.id===invoice.clientId);
+  const row = document.createElement('div');
+  row.className = 'order-row';
+  row.innerHTML = `
+    <div><div class="who">${escapeHtml(client ? client.name : 'Cliente')}</div>
+    <div class="muted small">${escapeHtml(invoice.number)} · ${statusLabel(invoice.status)}</div></div>
+    <div class="when">${invoice.delivery || 'Sin fecha'}</div>
+  `;
+  row.addEventListener('click', ()=> openViewInvoice(invoice.id));
+  row.style.cursor = 'pointer';
+  return row;
+}
+function statusLabel(s){
+  return {pendiente:'Pendiente', aceptada:'Aceptada', pagada:'Pagada'}[s] || s;
+}
+
+/* ---------------- Pedidos (todas las órdenes con fecha de entrega) ---------------- */
+function renderPedidos(){
+  const list = document.getElementById('pedidos-list');
+  list.innerHTML = '';
+  const withDelivery = DB.invoices
+    .filter(i=>i.delivery)
+    .sort((a,b)=> a.delivery.localeCompare(b.delivery));
+  if(withDelivery.length===0){
+    list.innerHTML = '<p class="empty-note">Aún no has asignado fechas de entrega a ningún trabajo. Agrega una fecha de entrega al crear o editar una factura.</p>';
+    return;
+  }
+  withDelivery.forEach(i=> list.appendChild(orderRow(i)));
+}
+
+/* ---------------- Clientes ---------------- */
+function renderClientList(){
+  const term = (document.getElementById('client-search').value || '').toLowerCase();
+  const grid = document.getElementById('client-list');
+  grid.innerHTML = '';
+  const filtered = DB.clients.filter(c => c.name.toLowerCase().includes(term));
+  if(filtered.length===0){
+    grid.innerHTML = '<p class="empty-note">No hay clientes todavía. Usa "+ Nuevo cliente" para agregar el primero.</p>';
+    return;
+  }
+  filtered.forEach(c=>{
+    const card = document.createElement('div');
+    card.className = 'client-card';
+    card.innerHTML = `
+      <div class="name">${escapeHtml(c.name)}</div>
+      ${c.phone ? `<div class="sub">📞 ${escapeHtml(c.phone)}</div>` : ''}
+      ${c.email ? `<div class="sub">✉️ ${escapeHtml(c.email)}</div>` : ''}
+      ${c.address ? `<div class="sub">📍 ${escapeHtml(c.address)}</div>` : ''}
+      <div class="card-actions">
+        <button class="btn btn-ghost btn-sm" data-edit="${c.id}">Editar</button>
+        <button class="btn btn-ghost btn-sm" data-del="${c.id}">Eliminar</button>
+      </div>
+    `;
+    card.querySelector('[data-edit]').addEventListener('click', ()=> openClientModal(c));
+    card.querySelector('[data-del]').addEventListener('click', ()=>{
+      if(confirm('¿Eliminar a ' + c.name + '? Esto no borra sus facturas existentes.')){
+        deleteClient(c.id);
+        renderClientList();
+      }
+    });
+    grid.appendChild(card);
+  });
+}
+
+function openClientModal(client){
+  document.getElementById('client-modal-title').textContent = client ? 'Editar cliente' : 'Nuevo cliente';
+  document.getElementById('client-id').value = client ? client.id : '';
+  document.getElementById('client-name').value = client ? client.name : '';
+  document.getElementById('client-phone').value = client ? client.phone||'' : '';
+  document.getElementById('client-email').value = client ? client.email||'' : '';
+  document.getElementById('client-address').value = client ? client.address||'' : '';
+  document.getElementById('client-notes').value = client ? client.notes||'' : '';
+  openModal('modal-client');
+}
+
+function setupClientForm(){
+  document.getElementById('btn-new-client').addEventListener('click', ()=> openClientModal(null));
+  document.getElementById('client-search').addEventListener('input', renderClientList);
+  document.getElementById('btn-save-client').addEventListener('click', ()=>{
+    const name = document.getElementById('client-name').value.trim();
+    if(!name){ alert('El nombre del cliente es obligatorio.'); return; }
+    const client = {
+      id: document.getElementById('client-id').value || null,
+      name,
+      phone: document.getElementById('client-phone').value.trim(),
+      email: document.getElementById('client-email').value.trim(),
+      address: document.getElementById('client-address').value.trim(),
+      notes: document.getElementById('client-notes').value.trim()
+    };
+    upsertClient(client);
+    closeModal('modal-client');
+    renderClientList();
+  });
+}
+
+/* ---------------- Facturas: lista ---------------- */
+function renderInvoiceList(){
+  const term = (document.getElementById('invoice-search').value||'').toLowerCase();
+  const statusFilter = document.getElementById('invoice-filter-status').value;
+  const container = document.getElementById('invoice-list');
+  container.innerHTML = '';
+
+  let list = DB.invoices.slice().sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+  list = list.filter(i=>{
+    const client = DB.clients.find(c=>c.id===i.clientId);
+    const clientName = client ? client.name.toLowerCase() : '';
+    const matchesTerm = clientName.includes(term) || i.number.toLowerCase().includes(term);
+    const matchesStatus = statusFilter==='todas' || i.status===statusFilter;
+    return matchesTerm && matchesStatus;
+  });
+
+  if(list.length===0){
+    container.innerHTML = '<p class="empty-note">No hay facturas que coincidan. Crea una con "+ Nueva factura".</p>';
+    return;
+  }
+
+  list.forEach(inv=>{
+    const client = DB.clients.find(c=>c.id===inv.clientId);
+    const row = document.createElement('div');
+    row.className = 'invoice-row';
+    row.innerHTML = `
+      <span class="num">${escapeHtml(inv.number)}</span>
+      <span>${escapeHtml(client ? client.name : 'Cliente eliminado')}</span>
+      <span class="status-pill status-${inv.status}">${statusLabel(inv.status)}</span>
+      <span class="amount">${money(invoiceTotal(inv))}</span>
+      <span class="row-actions">
+        <button class="icon-btn" title="Ver / imprimir" data-view="${inv.id}">👁️</button>
+        <button class="icon-btn" title="Editar" data-edit="${inv.id}">✏️</button>
+        <button class="icon-btn" title="Eliminar" data-del="${inv.id}">🗑️</button>
+      </span>
+    `;
+    row.querySelector('[data-view]').addEventListener('click', ()=> openViewInvoice(inv.id));
+    row.querySelector('[data-edit]').addEventListener('click', ()=> openInvoiceModal(inv));
+    row.querySelector('[data-del]').addEventListener('click', ()=>{
+      if(confirm('¿Eliminar la factura ' + inv.number + '?')){
+        deleteInvoice(inv.id);
+        renderInvoiceList();
+      }
+    });
+    container.appendChild(row);
+  });
+}
+
+/* ---------------- Facturas: modal crear/editar ---------------- */
+function fillClientSelect(){
+  const sel = document.getElementById('invoice-client');
+  sel.innerHTML = '';
+  if(DB.clients.length===0){
+    sel.innerHTML = '<option value="">Primero agrega un cliente</option>';
+    return;
+  }
+  DB.clients.forEach(c=>{
+    const opt = document.createElement('option');
+    opt.value = c.id; opt.textContent = c.name;
+    sel.appendChild(opt);
+  });
+}
+
+function addItemRow(item){
+  itemRowCount++;
+  const wrap = document.getElementById('invoice-items');
+  const row = document.createElement('div');
+  row.className = 'invoice-item-row';
+  row.dataset.rowId = itemRowCount;
+  row.innerHTML = `
+    <input type="text" placeholder="Descripción" class="item-desc" value="${item ? escapeHtml(item.desc) : ''}">
+    <input type="number" placeholder="Cant." class="item-qty" min="0" step="1" value="${item ? item.qty : 1}">
+    <input type="number" placeholder="Precio" class="item-price" min="0" step="0.01" value="${item ? item.price : ''}">
+    <button type="button" class="icon-btn" title="Quitar">✕</button>
+  `;
+  row.querySelector('button').addEventListener('click', ()=>{ row.remove(); updateInvoiceTotalPreview(); });
+  row.querySelectorAll('input').forEach(inp=> inp.addEventListener('input', updateInvoiceTotalPreview));
+  wrap.appendChild(row);
+}
+
+function readItemsFromForm(){
+  return Array.from(document.querySelectorAll('#invoice-items .invoice-item-row')).map(row=>({
+    desc: row.querySelector('.item-desc').value.trim(),
+    qty: Number(row.querySelector('.item-qty').value) || 0,
+    price: Number(row.querySelector('.item-price').value) || 0
+  })).filter(it=> it.desc || it.qty || it.price);
+}
+
+function updateInvoiceTotalPreview(){
+  const total = readItemsFromForm().reduce((s,it)=> s + it.qty*it.price, 0);
+  document.getElementById('invoice-total-preview').textContent = money(total);
+}
+
+function openInvoiceModal(invoice){
+  fillClientSelect();
+  document.getElementById('invoice-modal-title').textContent = invoice ? 'Editar factura' : 'Nueva factura';
+  document.getElementById('invoice-id').value = invoice ? invoice.id : '';
+  document.getElementById('invoice-client').value = invoice ? invoice.clientId : (DB.clients[0]?.id || '');
+  document.getElementById('invoice-status').value = invoice ? invoice.status : 'pendiente';
+  document.getElementById('invoice-date').value = invoice ? invoice.date : new Date().toISOString().slice(0,10);
+  document.getElementById('invoice-delivery').value = invoice ? (invoice.delivery||'') : '';
+  document.getElementById('invoice-notes').value = invoice ? (invoice.notes||'') : '';
+
+  document.getElementById('invoice-items').innerHTML = '';
+  itemRowCount = 0;
+  if(invoice && invoice.items && invoice.items.length){
+    invoice.items.forEach(addItemRow);
+  } else {
+    addItemRow(null);
+  }
+  updateInvoiceTotalPreview();
+  openModal('modal-invoice');
+}
+
+function setupInvoiceForm(){
+  document.getElementById('btn-new-invoice').addEventListener('click', ()=>{
+    if(DB.clients.length===0){
+      alert('Agrega al menos un cliente antes de crear una factura.');
+      goView('clientes');
+      return;
+    }
+    openInvoiceModal(null);
+  });
+  document.getElementById('btn-add-item').addEventListener('click', ()=> addItemRow(null));
+  document.getElementById('invoice-search').addEventListener('input', renderInvoiceList);
+  document.getElementById('invoice-filter-status').addEventListener('change', renderInvoiceList);
+
+  document.getElementById('btn-save-invoice').addEventListener('click', ()=>{
+    const clientId = document.getElementById('invoice-client').value;
+    if(!clientId){ alert('Selecciona un cliente.'); return; }
+    const items = readItemsFromForm();
+    if(items.length===0){ alert('Agrega al menos un artículo o servicio.'); return; }
+
+    const invoice = {
+      id: document.getElementById('invoice-id').value || null,
+      clientId,
+      status: document.getElementById('invoice-status').value,
+      date: document.getElementById('invoice-date').value,
+      delivery: document.getElementById('invoice-delivery').value,
+      notes: document.getElementById('invoice-notes').value.trim(),
+      items
+    };
+    if(invoice.id){
+      const existing = DB.invoices.find(i=>i.id===invoice.id);
+      invoice.number = existing.number;
+    }
+    upsertInvoice(invoice);
+    closeModal('modal-invoice');
+    renderInvoiceList();
+    if(currentView==='dashboard') renderDashboard();
+    if(currentView==='pedidos') renderPedidos();
+  });
+}
+
+/* ---------------- Ver / imprimir / exportar factura ---------------- */
+let viewingInvoiceId = null;
+
+function openViewInvoice(id){
+  viewingInvoiceId = id;
+  const invoice = DB.invoices.find(i=>i.id===id);
+  if(!invoice) return;
+  renderInvoicePaper(invoice);
+  openModal('modal-view-invoice');
+}
+
+function setupInvoiceViewActions(){
+  document.getElementById('btn-print-invoice').addEventListener('click', printInvoice);
+  document.getElementById('btn-pdf-invoice').addEventListener('click', ()=>{
+    const invoice = DB.invoices.find(i=>i.id===viewingInvoiceId);
+    exportInvoicePdf(invoice ? invoice.number : 'factura');
+  });
+  document.getElementById('btn-share-invoice').addEventListener('click', ()=>{
+    const invoice = DB.invoices.find(i=>i.id===viewingInvoiceId);
+    shareInvoice(invoice ? invoice.number : 'factura');
+  });
+}
+
+/* ---------------- Configuración ---------------- */
+function fillConfigForm(){
+  const s = DB.settings;
+  document.getElementById('cfg-business-name').value = s.businessName || '';
+  document.getElementById('cfg-business-phone').value = s.businessPhone || '';
+  document.getElementById('cfg-business-address').value = s.businessAddress || '';
+  document.getElementById('cfg-business-rnc').value = s.businessRnc || '';
+  document.getElementById('cfg-next-number').value = s.nextNumber || 1;
+  document.getElementById('cfg-prefix').value = s.prefix || 'FAC-';
+  document.getElementById('cfg-color-custom').value = s.accent || '#2F6F4E';
+
+  const preview = document.getElementById('logo-preview');
+  const placeholder = document.getElementById('logo-placeholder');
+  if(s.logo){ preview.src = s.logo; preview.classList.remove('hidden'); placeholder.classList.add('hidden'); }
+  else { preview.classList.add('hidden'); placeholder.classList.remove('hidden'); }
+}
+
+function setupConfigForm(){
+  const saveField = (id, key, transform)=>{
+    document.getElementById(id).addEventListener('change', (e)=>{
+      const val = transform ? transform(e.target.value) : e.target.value;
+      saveSettings({[key]: val});
+      applyBrand();
+    });
+  };
+  saveField('cfg-business-name', 'businessName');
+  saveField('cfg-business-phone', 'businessPhone');
+  saveField('cfg-business-address', 'businessAddress');
+  saveField('cfg-business-rnc', 'businessRnc');
+  saveField('cfg-next-number', 'nextNumber', v=> Number(v)||1);
+  saveField('cfg-prefix', 'prefix');
+
+  document.getElementById('cfg-color-custom').addEventListener('input', (e)=>{
+    saveSettings({accent: e.target.value});
+    applyAccent(e.target.value);
+    renderColorPresets();
+  });
+
+  document.getElementById('cfg-logo-input').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      saveSettings({logo: reader.result});
+      fillConfigForm();
+      applyBrand();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('btn-remove-logo').addEventListener('click', ()=>{
+    saveSettings({logo:''});
+    fillConfigForm();
+    applyBrand();
+  });
+}
+
+/* ---------------- Modales genéricos ---------------- */
+function setupModals(){
+  document.querySelectorAll('.modal-close, [data-close]').forEach(btn=>{
+    btn.addEventListener('click', ()=> closeModal(btn.dataset.close));
+  });
+  document.querySelectorAll('.modal').forEach(modal=>{
+    modal.addEventListener('click', (e)=>{
+      if(e.target === modal) closeModal(modal.id);
+    });
+  });
+}
+function openModal(id){ document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+
+</script>
+</body>
+</html>
